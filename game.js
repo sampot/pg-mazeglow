@@ -4,6 +4,8 @@
 
 export const W = 480;
 export const H = 640;
+/** Power / edible window in update-frames (~60fps). */
+export const FRIGHTENED_MAX = 60 * 6;
 
 export const COLS = 19;
 export const ROWS = 21;
@@ -276,7 +278,7 @@ export class MazeglowGame {
       this.grid[r][c] = 2;
       this.pelletsLeft -= 1;
       this.score += 50;
-      this.frightened = 60 * 6; // ~6s
+      this.frightened = FRIGHTENED_MAX;
       events.push("power");
     }
     if (this.pelletsLeft <= 0) {

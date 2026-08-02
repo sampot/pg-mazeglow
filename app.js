@@ -1,5 +1,15 @@
 import { MazeglowAudio } from "./audio.js";
-import { MazeglowGame, W, H, COLS, ROWS, CELL, OX, OY } from "./game.js";
+import {
+  MazeglowGame,
+  W,
+  H,
+  COLS,
+  ROWS,
+  CELL,
+  OX,
+  OY,
+  FRIGHTENED_MAX,
+} from "./game.js";
 
 const audio = new MazeglowAudio();
 const game = new MazeglowGame();
@@ -114,11 +124,36 @@ function draw() {
 
   // Chasers — angular geometry (not ghost silhouettes)
   const flee = game.frightened > 0;
+  const endingSoon = flee && game.frightened < FRIGHTENED_MAX * 0.34; // ~2s
+  const critical = flee && game.frightened < FRIGHTENED_MAX * 0.17; // ~1s
+  // Ending: flash edible ↔ danger so expiry is obvious
+  const flashOn =
+    endingSoon && Math.floor(performance.now() / (critical ? 90 : 160)) % 2 === 0;
+  const showEdible = flee && (!endingSoon || flashOn);
+
   game.chasers.forEach((ch, i) => {
     const hues = [330, 210, 40];
-    ctx.fillStyle = flee
-      ? `hsl(210 70% ${50 + Math.sin(performance.now() / 100) * 10}%)`
-      : `hsl(${hues[i % hues.length]} 70% 58%)`;
+    if (showEdible) {
+      // Icy edible look + dashed “可吃” halo
+      ctx.fillStyle = `hsl(205 90% ${58 + Math.sin(performance.now() / 120) * 8}%)`;
+      ctx.strokeStyle = "#fde68a";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.arc(ch.x, ch.y, 14, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (flee && endingSoon) {
+      // Flash-off frame: warn that power is nearly gone
+      ctx.fillStyle = `hsl(${hues[i % hues.length]} 85% 55%)`;
+      ctx.strokeStyle = "#fb7185";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(ch.x, ch.y, 14, 0, Math.PI * 2);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = `hsl(${hues[i % hues.length]} 70% 58%)`;
+    }
     ctx.beginPath();
     if (i % 2 === 0) {
       // Diamond
@@ -134,16 +169,32 @@ function draw() {
     }
     ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = flee ? "#e0f2fe" : "rgba(0,0,0,0.35)";
+    ctx.fillStyle = showEdible ? "#0c4a6e" : "rgba(0,0,0,0.35)";
     ctx.beginPath();
     ctx.arc(ch.x - 2.5, ch.y - 1, 1.6, 0, Math.PI * 2);
     ctx.arc(ch.x + 2.5, ch.y - 1, 1.6, 0, Math.PI * 2);
     ctx.fill();
+    if (showEdible) {
+      ctx.fillStyle = "#fde68a";
+      ctx.font = "700 9px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("可吃", ch.x, ch.y - 15);
+    }
   });
 
   // Player — rounded hex glow (not a chomp circle)
   const p = game.player;
-  ctx.fillStyle = cssVar("--ship", "#5eead4");
+  if (flee) {
+    ctx.save();
+    ctx.shadowColor = endingSoon ? "#fb7185" : "#fbbf24";
+    ctx.shadowBlur = endingSoon ? (flashOn ? 18 : 6) : 14;
+  }
+  ctx.fillStyle = flee
+    ? endingSoon && !flashOn
+      ? cssVar("--ship", "#5eead4")
+      : "#fbbf24"
+    : cssVar("--ship", "#5eead4");
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
     const a = (Math.PI / 3) * i - Math.PI / 6;
@@ -154,6 +205,7 @@ function draw() {
   }
   ctx.closePath();
   ctx.fill();
+  if (flee) ctx.restore();
   ctx.fillStyle = "rgba(255,255,255,0.45)";
   ctx.beginPath();
   ctx.arc(p.x, p.y - 1, 3, 0, Math.PI * 2);
@@ -164,6 +216,7 @@ function draw() {
   ctx.globalAlpha = 0.45;
   ctx.font = "600 12px system-ui, sans-serif";
   ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
   ctx.fillText(`光點 ${game.pelletsLeft}`, W / 2, OY + ROWS * CELL + 22);
   ctx.globalAlpha = 1;
 
@@ -174,11 +227,68 @@ function draw() {
   } else if (game.status === "over") {
     banner("迴廊沉寂");
   } else if (flee) {
-    ctx.fillStyle = cssVar("--neon", "#fbbf24");
-    ctx.font = "700 13px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("強化中 · 可反制追逐者", W / 2, 36);
+    drawPowerHud(endingSoon, critical);
   }
+}
+
+function drawPowerHud(endingSoon, critical) {
+  const ratio = Math.max(0, Math.min(1, game.frightened / FRIGHTENED_MAX));
+  const secs = Math.max(0, game.frightened / 60);
+  const barW = 220;
+  const barH = 10;
+  const barX = (W - barW) / 2;
+  const barY = 28;
+
+  // Backdrop chip
+  ctx.fillStyle = endingSoon ? "rgba(127,29,29,0.72)" : "rgba(20,40,30,0.72)";
+  roundRect(ctx, barX - 16, 8, barW + 32, 42, 10);
+  ctx.fill();
+
+  const label = endingSoon
+    ? critical
+      ? `快結束！還可吃 ${secs.toFixed(1)}s`
+      : `即將結束 · 還可吃 ${secs.toFixed(1)}s`
+    : `可吃追逐者 · ${secs.toFixed(1)}s`;
+  ctx.fillStyle = endingSoon
+    ? flashLabelColor(critical)
+    : cssVar("--neon", "#fbbf24");
+  ctx.font = endingSoon ? "800 14px system-ui, sans-serif" : "700 13px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(label, W / 2, 22);
+
+  // Timer track
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  roundRect(ctx, barX, barY, barW, barH, 5);
+  ctx.fill();
+
+  const fillW = Math.max(2, barW * ratio);
+  const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+  if (endingSoon) {
+    grad.addColorStop(0, "#fb7185");
+    grad.addColorStop(1, "#fbbf24");
+  } else {
+    grad.addColorStop(0, "#38bdf8");
+    grad.addColorStop(1, "#fbbf24");
+  }
+  ctx.fillStyle = grad;
+  roundRect(ctx, barX, barY, fillW, barH, 5);
+  ctx.fill();
+
+  // Blink border when critical
+  if (critical && Math.floor(performance.now() / 90) % 2 === 0) {
+    ctx.strokeStyle = "#fecaca";
+    ctx.lineWidth = 2;
+    roundRect(ctx, barX - 16, 8, barW + 32, 42, 10);
+    ctx.stroke();
+  }
+}
+
+function flashLabelColor(critical) {
+  if (Math.floor(performance.now() / (critical ? 90 : 160)) % 2 === 0) {
+    return "#fecaca";
+  }
+  return "#fde68a";
 }
 
 function banner(msg) {
@@ -229,12 +339,30 @@ function frame(ts) {
   lastTs = ts;
 
   applyKeyDirs();
+  const wasFrightened = game.frightened;
   const { events } = game.update(dt);
   if (events.length) handleEvents(events);
+  syncPowerStatus(wasFrightened);
 
   draw();
   syncHud();
   requestAnimationFrame(frame);
+}
+
+function syncPowerStatus(wasFrightened) {
+  if (game.status !== "playing") return;
+  if (game.frightened > 0) {
+    const secs = (game.frightened / 60).toFixed(1);
+    if (game.frightened < FRIGHTENED_MAX * 0.17) {
+      setStatus(`快結束！還可吃 ${secs}s`, "lose");
+    } else if (game.frightened < FRIGHTENED_MAX * 0.34) {
+      setStatus(`即將結束 · 還可吃 ${secs}s`, "warn");
+    } else {
+      setStatus(`可吃追逐者 · ${secs}s`, "win");
+    }
+  } else if (wasFrightened > 0) {
+    setStatus("強化結束 · 避開追逐者", "warn");
+  }
 }
 
 async function tryStart() {
