@@ -117,11 +117,11 @@ export class MazeglowGame {
       }
     }
 
-    this.player = this.makeActor(playerSpawn.col, playerSpawn.row, 1.85);
+    this.player = this.makeActor(playerSpawn.col, playerSpawn.row, 2.4);
     this.player.next = null;
     /** @type {Actor[]} */
     this.chasers = chaseSpawns.slice(0, 2 + (idx % 2)).map((s, i) => {
-      const a = this.makeActor(s.col, s.row, 1.35 + i * 0.12 + idx * 0.08);
+      const a = this.makeActor(s.col, s.row, 1.7 + i * 0.15 + idx * 0.1);
       a.dir = { x: i % 2 === 0 ? 1 : -1, y: 0 };
       return a;
     });
@@ -186,7 +186,8 @@ export class MazeglowGame {
     return this.grid[row][col] !== 1;
   }
 
-  atCenter(actor, tol = 2.2) {
+  atCenter(actor, tol = 0.9) {
+    // tol must stay below one frame of movement or actors snap-lock in place
     const cx = OX + actor.col * CELL + CELL / 2;
     const cy = OY + actor.row * CELL + CELL / 2;
     return Math.abs(actor.x - cx) <= tol && Math.abs(actor.y - cy) <= tol;

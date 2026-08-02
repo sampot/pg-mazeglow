@@ -3,6 +3,8 @@ import { MazeglowGame, W, H, COLS, ROWS, CELL, OX, OY } from "./game.js";
 
 const audio = new MazeglowAudio();
 const game = new MazeglowGame();
+// Optional hook for local debugging / AI tinkering in Playgrounds
+globalThis.__mazeglow = game;
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
