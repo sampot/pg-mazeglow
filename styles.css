@@ -1,0 +1,205 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --text: #14161a;
+  --muted: #5c6570;
+  --line: #d8dde3;
+  --accent: #0f766e;
+  --accent-dim: #0d5c56;
+  --on-accent: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, var(--panel));
+  --board: #0b1220;
+  --on-board: #e8ecf1;
+  --panel-line: #3a4556;
+  --neon: #fbbf24;
+  --danger: #b91c1c;
+  --ship: #5eead4;
+  --enemy-a: #f472b6;
+  --enemy-b: #fbbf24;
+  --enemy-c: #a78bfa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #070a10;
+    --panel: #121820;
+    --text: #e8ecf1;
+    --muted: #9aa3ad;
+    --line: #2a313a;
+    --accent: #2dd4bf;
+    --accent-dim: #0f766e;
+    --on-accent: #ffffff;
+    --board: #070b14;
+    --on-board: #e8ecf1;
+    --panel-line: #2a313a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family:
+    "Avenir Next",
+    "Segoe UI",
+    "PingFang TC",
+    "Noto Sans TC",
+    sans-serif;
+  background:
+    radial-gradient(
+      900px 480px at 70% -10%,
+      color-mix(in oklab, var(--accent) 18%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      700px 400px at 10% 100%,
+      color-mix(in oklab, #6366f1 12%, transparent),
+      transparent 50%
+    ),
+    var(--bg);
+  color: var(--text);
+}
+
+main {
+  width: min(100%, 32rem);
+  margin: 0 auto;
+  padding: 1.1rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family:
+    "Iowan Old Style",
+    Palatino,
+    "Songti TC",
+    serif;
+  font-size: clamp(1.75rem, 4vw, 2.2rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.tagline {
+  margin: 0.3rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.meter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1.1rem;
+  padding: 0.75rem 0.9rem;
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+}
+
+.meter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.meter-item .label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.meter-item strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter-actions {
+  margin-left: auto;
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+}
+
+#game {
+  display: block;
+  width: min(100%, 480px);
+  height: auto;
+  aspect-ratio: 480 / 640;
+  border-radius: 0.75rem;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--accent) 40%, #000),
+    0 14px 36px rgba(0, 0, 0, 0.28);
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.status {
+  margin: 0;
+  text-align: center;
+  font-weight: 650;
+  padding: 0.65rem 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  min-height: 2.6rem;
+}
+
+.status[data-tone="win"] {
+  background: color-mix(in oklab, var(--neon) 22%, var(--panel));
+}
+
+.status[data-tone="lose"] {
+  background: color-mix(in oklab, var(--danger) 12%, var(--panel));
+}
+
+.status[data-tone="warn"] {
+  background: color-mix(in oklab, #f59e0b 18%, var(--panel));
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button {
+  font: inherit;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.45;
+}

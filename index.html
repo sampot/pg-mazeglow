@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="街機風迷宮拾光：自創迴廊、幾何角色、追逐與強化光點。純前端 Playgrounds SAM。"
+    />
+    <title>迴廊拾光</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>迴廊拾光</h1>
+        <p class="tagline">迷宮拾光 · 幾何追逐 · 純娛樂</p>
+      </header>
+
+      <section class="meter" aria-label="分數">
+        <div class="meter-item">
+          <span class="label">分數</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="meter-item">
+          <span class="label">命</span>
+          <strong id="lives">3</strong>
+        </div>
+        <div class="meter-item">
+          <span class="label">關卡</span>
+          <strong id="level">1</strong>
+        </div>
+        <div class="meter-actions">
+          <button type="button" id="btn-mute" class="secondary" aria-pressed="true">
+            音效開
+          </button>
+        </div>
+      </section>
+
+      <div class="stage">
+        <canvas
+          id="game"
+          width="480"
+          height="640"
+          role="img"
+          aria-label="迴廊拾光遊戲區"
+        ></canvas>
+      </div>
+
+      <p id="status" class="status" role="status">準備出發</p>
+
+      <div class="controls">
+        <button type="button" id="btn-start">出發</button>
+        <button type="button" id="btn-reset" class="secondary">重來</button>
+      </div>
+
+      <p class="hint">
+        ← → ↑ ↓ 或 WASD 移動；觸控可滑動方向。大光點可短暫反制追逐者。
+      </p>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
