@@ -4,14 +4,14 @@
 
 名稱、迷宮與角色為原創小品，致敬「迷宮拾取＋追逐」玩法類型，非任一商業作品復刻。
 
-也可當作 [Playgrounds（遊樂場）](https://samkuo.me/playgrounds/) 的 **SAM**（`index.html` 入口）。覺得關卡或 AI 不夠完美？開進來玩，再叫 AI 幫你改一版。
+也可當作 [Playgrounds（遊樂場）](https://play.samkuo.me/) 的 **SAM**（`index.html` 入口）。覺得關卡或 AI 不夠完美？開進來玩，再叫 AI 幫你改一版。
 
 ## 一鍵開 SAM 小
 
-**[一鍵開 SAM 小](https://samkuo.me/playgrounds/?open=sampot%2Fpg-mazeglow&name=%E8%BF%B4%E5%BB%8A%E6%8B%BE%E5%85%89)**
+**[一鍵開 SAM 小](https://play.samkuo.me/?open=sampot%2Fpg-mazeglow&name=%E8%BF%B4%E5%BB%8A%E6%8B%BE%E5%85%89)**
 
 ```
-https://samkuo.me/playgrounds/?open=sampot/pg-mazeglow&name=迴廊拾光
+https://play.samkuo.me/?open=sampot/pg-mazeglow&name=迴廊拾光
 ```
 
 同源會重用本機已匯入的沙盒；要強制新建可加 `&fresh=1`。
